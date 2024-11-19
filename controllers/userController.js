@@ -7,12 +7,18 @@ import { Request } from "../models/request.js";
 import { NEW_REQUEST, REFETCH_CHATS } from "../constants/events.js";
 import { getOtherMember } from "../lib/helper.js";
 //Create  new user and save it to datatbase and save token and cookies
-const newUser=async(req,res)=>{
+const newUser=async(req,res,next)=>{
     try{
+
     const { name,username,password,bio} =req.body;
 
 const file=req.file
-if(!file) return next(new ErrorHandler("please upload Avatar"));
+
+
+if(!file){
+
+ return next(new ErrorHandler("please upload Avatar",400));
+}
 
 const result =await uploadFilesToCloudinary([file]);
 
@@ -22,7 +28,7 @@ const result =await uploadFilesToCloudinary([file]);
         public_id:result[0].public_id,
         url:result[0].url,
     };
-    const user= await User.create({name:name, bio:bio,username:username,password:password,avatar});
+    const user= await User.create({name:name, bio:bio,username:username,password:password,avatar:avatar});
     sendTOken(res,user,201,"User created");
 } catch (error) {
     return next(new ErrorHandler(error.message, 500));
@@ -232,14 +238,19 @@ const getMyFriends=async(req,res,next)=>{
       ("members","name avatar");
       const friends = chats.map(({ members }) => {
         const otherUser = getOtherMember(members, req.user);
-    
+        if (!otherUser) {
+            // Log for debugging if no other user is found
+            console.error("No other member found in chat:", members);
+            
+        }
+        
         return {
             _id: otherUser._id,
             name: otherUser.name,
             avatar: otherUser.avatar.url,
         };
        
-    });
+    }).filter(Boolean);
     if(chatId){
 const chat =await Chat.findById(chatId);
 

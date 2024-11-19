@@ -96,18 +96,19 @@ const getMyGroups=async(req,res,next)=>{
 
         const groups=chats.map(({members,_id,groupChat,name})=>({
 _id,groupChat,name,
-avatar:members.slice(0,3).map(({avatar})=>avatar.url),
+avatar:members.slice(0,3).map(({avatar})=>avatar?.url||null),
         }));
         return res.status(200).json({
             success:true,
             groups,
         })
+
+
+
     } catch (error) {
         next(error);
     }
 }
-
-
 
 
 
@@ -128,9 +129,18 @@ const addMembers = async (req, res, next) => {
         const allNewMembers = await Promise.all(allNewMembersPromise);
 
         // Filter out members already in the group
-        const uniqueMembers = allNewMembers
-            .filter((i) => !chat.members.includes(i._id.toString()))
-            .map((i) => i._id);
+        // const uniqueMembers = allNewMembers
+        //     .filter((i) => !chat.members.includes(i._id.toString()))
+        //     .map((i) => i._id);
+
+
+    // Find unique members
+    const uniqueMembers = members.filter(
+        (memberId) => !chat.members.includes(memberId)
+    );
+
+
+
 
         // Add only unique members
         chat.members.push(...uniqueMembers);

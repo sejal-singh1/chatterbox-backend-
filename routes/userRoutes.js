@@ -3,7 +3,7 @@ import { acceptFriendRequest, getMyFriends, getMyNotifications, getMyProfile, lo
 import {  singleAvatar } from "../middleware/multer.js";
 import { isAuthenticated } from "../middleware/auth.js";
 import { acceptRequestValidator, loginValidator, registerValidator, sendFriendValidator, validateHandler } from "../lib/validators.js";
-import { errorMiddleware } from "../middleware/error.js";
+
 
 const app=express.Router();
 
